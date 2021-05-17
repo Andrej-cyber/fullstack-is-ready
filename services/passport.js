@@ -17,17 +17,20 @@ passport.deserializeUser((id, done) => {
 
 
 passport.use(
-  new GoogleStrategy({
+  new GoogleStrategy(
+  {
   clientID: keys.googleClientID,
   clientSecret: keys.googleClientSecret,
-  callbackURL: '/auth/google/callback'
- }, (accessToken, refreshToken, profile, done) => {
-  User.findOne({ googleId: profile.id })
+  callbackURL: '/auth/google/callback',
+  proxy: true
+  },
+  (accessToken, refreshToken, profile, done) => {
+   User.findOne({ googleId: profile.id })
   .then(existingUser => {
     if (existingUser) {
       //We already have a reccord with the given user profile ID
       done(null, existingUser);
-    } else {
+  } else {
       //We do not have a user reccord with this ID, make a new reccord
       new User({ googleId: profile.id }).save()
       .then(user => done(null, user));
